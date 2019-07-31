@@ -1,5 +1,5 @@
-FROM demo/oracle8alpine
-
+#FROM openjdk:8u222-jdk-alpine
+FROM openjdk:14-jdk-alpine
 
 MAINTAINER  Aleksey Ovchinnikov
 
@@ -7,7 +7,7 @@ MAINTAINER  Aleksey Ovchinnikov
 WORKDIR /root
 
 # Bundle app source
-COPY target/rtn-gateway-server.jar .
+COPY rtn-gateway-server/target/rtn-gateway-server.jar .
 
 
 #EXPOSE 8200

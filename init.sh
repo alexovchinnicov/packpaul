@@ -72,6 +72,16 @@ git checkout demo
 git cherry-pick remotes/origin/local
 cd ..
 
+cd rtn-infrastructure-config
+git branch demo dev
+git checkout demo
+git cherry-pick remotes/origin/local
+sed -i -e "s|scorePath:.*||g" iasbp2-api-dev.yml
+sed -i -e "s/localhost/172.17.0.1/g" iasbp2-api-dev.yml
+git commit -a --amend --no-edit
+cd ..
+
+
 sudo docker run -it --rm --name build-iasbp2-api -v "$(pwd)/_m2":/root/.m2  -v "$(pwd)/iasbp2-api":/tmp/iasbp2-api -w /tmp/iasbp2-api maven:3.5-jdk-8 mvn clean package -DskipTests=true
 sudo docker run -it --rm --name build-rtn-config-server -v "$(pwd)/_m2":/root/.m2 -v "$(pwd)/rtn-config-server":/tmp/rtn-config-server -w /tmp/rtn-config-server maven:3.5-jdk-8 mvn clean package -DskipTests=true
 sudo docker run -it --rm --name build-rtn-gateway-server -v "$(pwd)/_m2":/root/.m2 -v "$(pwd)/rtn-gateway-server":/tmp/rtn-gateway-server -w /tmp/rtn-gateway-server maven:3.5-jdk-8 mvn clean package -DskipTests=true
@@ -81,41 +91,26 @@ echo "${bold}Step3${normal}: Complected"
 echo
 echo "${bold}Step4${normal}: Build docker conteiners"
 
-#Make base PostgreSQL conteiner with localization
-cd _docker/postgresql
-sudo docker build -t demo/postgresql .
-cd .. && cd ..
-
-#Make base Oracle JDK8 conteiner
-cd _docker/oracle8-alpine
-sudo docker build -t demo/oracle8alpine .
-cd .. && cd ..
 
 cp -f _docker/checklist-ui/Dockerfile checklist-ui/
 cd checklist-ui
 sudo docker build -t demo/checklist-ui .
 cd ..
 
-cp -f _docker/rtn-gateway-server/Dockerfile rtn-gateway-server/
-cd rtn-gateway-server
-sudo chmod 777 target
-cat target/gateway-server*SNAP*.jar > target/rtn-gateway-server.jar
-sudo docker build -t demo/rtn-gateway-server .
-cd ..
 
-cp -f _docker/rtn-config-server/Dockerfile rtn-config-server/
-cd rtn-config-server
-sudo chmod 777 target
-cat target/ms-config-server*SNAP*.jar > target/rtn-config-server.jar
-sudo docker build -t demo/rtn-config-server .
-cd ..
+sudo chmod 777 rtn-gateway-server/target
+cat rtn-gateway-server/target/gateway-server*SNAP*.jar > rtn-gateway-server/target/rtn-gateway-server.jar
+sudo docker build -t demo/rtn-gateway-server  -f _docker/rtn-gateway-server/Dockerfile .
 
-cp -f _docker/iasbp2-api/Dockerfile iasbp2-api/
-cd iasbp2-api
-sudo chmod 777 target
-cat target/iasbp2-api*SNAP*.jar > target/iasbp2-api.jar
-sudo docker build -t demo/iasbp2-api .
-cd ..
+
+sudo chmod 777 rtn-config-server/target
+cat rtn-config-server/target/ms-config-server*SNAP*.jar > rtn-config-server/target/rtn-config-server.jar
+sudo docker build -t demo/rtn-config-server -f _docker/rtn-config-server/Dockerfile .
+
+sudo chmod 777 iasbp2-api/target
+cat iasbp2-api/target/iasbp2-api*SNAP*.jar > iasbp2-api/target/iasbp2-api.jar
+sudo docker build -t demo/iasbp2-api -f _docker/iasbp2-api/Dockerfile .
+
 
 echo "${bold}Step4${normal}: Complected"
 

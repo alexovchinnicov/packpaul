@@ -1,5 +1,5 @@
-FROM demo/oracle8alpine
-
+#FROM openjdk:8u222-jdk-alpine
+FROM openjdk:14-jdk-alpine
 
 MAINTAINER  Aleksey Ovchinnikov
 
@@ -7,7 +7,8 @@ MAINTAINER  Aleksey Ovchinnikov
 WORKDIR /root
 
 # Bundle app source
-COPY target/rtn-config-server.jar .
+COPY rtn-config-server/target/rtn-config-server.jar .
+COPY rtn-infrastructure-config/iasbp2-api-dev.yml ./rtn-infrastructure-config/
 
 
 EXPOSE 8080
