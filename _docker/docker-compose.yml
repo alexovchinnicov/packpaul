@@ -1,0 +1,81 @@
+version: '3.3'
+services:
+    consul:
+        image: consul
+        container_name: consul
+        network_mode: bridge
+        command: ["consul", "agent", "-dev", "-client", "0.0.0.0"]
+        restart: always
+
+    postgresql:
+        image: demo/postgresql
+        container_name: postgresql
+        network_mode: bridge
+        environment:
+          LANG: ru_RU.utf8
+          LANGUAGE: ru_RU.utf8
+          POSTGRES_DB: iasbp
+          POSTGRES_USER: sa
+          POSTGRES_PASSWORD: sa
+          POSTGRES_DBPARAMS: --lc-collate=ru_RU.utf8 --lc-ctype=ru_RU.utf8 --template=template0
+          POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=ru_RU.utf8 --lc-ctype=ru_RU.utf8
+        volumes:
+          - ./../_pgdata:/var/lib/postgresql/data
+        restart: always
+
+
+    config-server:
+        image: demo/rtn-config-server
+        container_name: rtn-config-server
+        network_mode: bridge
+        depends_on:
+            - consul
+        links:
+            - consul
+        restart: always
+
+    gateway-server:
+        image: demo/rtn-gateway-server
+        container_name: rtn-gateway-server
+        network_mode: bridge
+        depends_on:
+            - consul
+            - config-server
+        links:
+            - consul
+            - config-server
+        restart: always
+
+    iasbp2-api:
+        image: demo/iasbp2-api
+        container_name: iasbp2-api
+        network_mode: bridge
+        depends_on:
+            - consul
+            - postgresql
+            - gateway-server
+            - config-server
+        links:
+            - consul
+            - postgresql
+            - gateway-server
+            - config-server
+        restart: always
+
+
+    checlist-ui:
+        image: demo/checklist-ui
+        container_name: checklist-ui
+        network_mode: bridge
+        depends_on:
+            - iasbp2-api
+            - consul
+            - gateway-server
+            - config-server
+        links:
+            - iasbp2-api
+        ports:
+          - 4200:4200
+        restart: always
+
+

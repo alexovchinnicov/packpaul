@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Jan 24 01:37:03 MSK 2019
+ms-build-tools-1.0.12.pom>=
+ms-build-tools-1.0.12.jar>=
