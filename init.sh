@@ -1,4 +1,4 @@
-4#!/usr/bin/env bash
+#!/usr/bin/env bash
 #echo "*************************************************"
 #echo "*            Docker for RTN projects            *"
 #echo "*              Aleksey Ovchinnikov              *"
